@@ -20,6 +20,8 @@ const buttonVariants = cva(
         ghost:
           'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
+        firstPage: 'bg-accent text-accent-foreground shadow-xs hover:bg-accent/80 rounded-full px-2',
+        lastPage: 'bg-accent text-accent-foreground shadow-xs hover:bg-accent/80 rounded-full px-2',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',
@@ -35,6 +37,18 @@ const buttonVariants = cva(
   },
 )
 
+/**
+ * Button component supporting multiple variants and sizes.
+ * Now includes 'firstPage' and 'lastPage' variants for pagination navigation.
+ *
+ * Example usage for page navigation:
+ * <Button variant="firstPage" aria-label="First Page">
+ *   <svg>...</svg>
+ * </Button>
+ * <Button variant="lastPage" aria-label="Last Page">
+ *   <svg>...</svg>
+ * </Button>
+ */
 function Button({
   className,
   variant,

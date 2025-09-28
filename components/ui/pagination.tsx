@@ -3,7 +3,44 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
 } from 'lucide-react'
+// First Page Button
+function PaginationFirst({
+  className,
+  ...props
+}: React.ComponentProps<typeof Button>) {
+  return (
+    <Button
+      variant="firstPage"
+      size="icon"
+      aria-label="Go to first page"
+      className={cn(className)}
+      {...props}
+    >
+      <ChevronsLeftIcon />
+    </Button>
+  );
+}
+
+// Last Page Button
+function PaginationLast({
+  className,
+  ...props
+}: React.ComponentProps<typeof Button>) {
+  return (
+    <Button
+      variant="lastPage"
+      size="icon"
+      aria-label="Go to last page"
+      className={cn(className)}
+      {...props}
+    >
+      <ChevronsRightIcon />
+    </Button>
+  );
+}
 
 import { cn } from '@/lib/utils'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -124,4 +161,6 @@ export {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
+  PaginationFirst,
+  PaginationLast,
 }
