@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
 import { ExternalLink, Heart, Share2, Eye } from "lucide-react"
-
 interface ScryfallCard {
   id: string
   name: string
@@ -43,15 +42,16 @@ interface ScryfallCard {
   }
   scryfall_uri?: string
 }
-
 interface CardDisplayProps {
   card: ScryfallCard
   onCardClick?: (card: ScryfallCard) => void
+  watchList?: string[]
 }
 
 interface CardGridProps {
   cards: ScryfallCard[]
   loading?: boolean
+  watchList?: string[]
 }
 
 const getLegalityColor = (legality: string) => {
@@ -64,7 +64,9 @@ const getLegalityColor = (legality: string) => {
     }
   };
 
-export function CardDisplay({ card, onCardClick }: CardDisplayProps) {
+export function CardDisplay({ card, onCardClick, watchList }: CardDisplayProps) {
+  // Watch List highlight logic
+  const isWatchList = (watchList?: string[]) => watchList?.some(name => name.toLowerCase() === card.name.toLowerCase())
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
       case "common":
@@ -114,8 +116,14 @@ export function CardDisplay({ card, onCardClick }: CardDisplayProps) {
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer group">
+    <Card className={`overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer group ${isWatchList(watchList) ? 'border-4 border-orange-500' : ''}`}> 
       <div className="relative" onClick={() => onCardClick?.(card)}>
+        {/* Watch List Tag */}
+        {isWatchList(watchList) && (
+          <div className="absolute top-2 left-2 z-10">
+            <Badge className="bg-orange-500 text-white text-xs px-2 py-1 rounded shadow">Watch List</Badge>
+          </div>
+        )}
         {/* Card Faces or Single Image */}
         <div className="aspect-[5/7] overflow-hidden relative">
           <div className={`w-full h-full transition-transform duration-500 [perspective:1000px]` + (hasFaces ? "" : "") }>
@@ -195,7 +203,7 @@ export function CardDisplay({ card, onCardClick }: CardDisplayProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function CardModal({ card, open, onClose }: { card: ScryfallCard | null; open: boolean; onClose: () => void }) {
@@ -413,7 +421,7 @@ export function CardModal({ card, open, onClose }: { card: ScryfallCard | null; 
   );
 }
 
-export function CardGrid({ cards, loading }: CardGridProps) {
+export function CardGrid({ cards, loading, watchList }: CardGridProps) {
   const [selectedCard, setSelectedCard] = useState<ScryfallCard | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
 
@@ -453,11 +461,10 @@ export function CardGrid({ cards, loading }: CardGridProps) {
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {cards.map((card) => (
-          <CardDisplay key={card.id} card={card} onCardClick={handleCardClick} />
+          <CardDisplay key={card.id} card={card} onCardClick={handleCardClick} watchList={watchList} />
         ))}
       </div>
-
       <CardModal card={selectedCard} open={modalOpen} onClose={() => setModalOpen(false)} />
     </>
-  )
+  );
 }
