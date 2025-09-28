@@ -45,15 +45,44 @@ function Button({
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
   }) {
-  const Comp = asChild ? Slot : 'button'
+  // Prevent nested <button> hydration error
+  const ref = React.useRef<HTMLElement>(null);
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && ref.current) {
+      let parent = ref.current.parentElement;
+      while (parent) {
+        if (parent.tagName === 'BUTTON') {
+          // eslint-disable-next-line no-console
+          console.warn('Button: <button> cannot be a descendant of <button>. Rendering <span> instead.');
+          break;
+        }
+        parent = parent.parentElement;
+      }
+    }
+  }, []);
+
+  let Comp: any = asChild ? Slot : 'button';
+  let overrideTag = false;
+  if (asChild && typeof window !== 'undefined' && ref.current) {
+    let parent = ref.current.parentElement;
+    while (parent) {
+      if (parent.tagName === 'BUTTON') {
+        Comp = 'span';
+        overrideTag = true;
+        break;
+      }
+      parent = parent.parentElement;
+    }
+  }
 
   return (
     <Comp
+      ref={ref}
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
-  )
+  );
 }
 
 export { Button, buttonVariants }
