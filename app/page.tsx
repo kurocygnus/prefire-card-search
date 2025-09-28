@@ -72,17 +72,39 @@ interface AdvancedFilters {
 
 // Fixed editions filter - you can customize these
 const FIXED_EDITIONS = [
-  "neo", // Kamigawa: Neon Dynasty
-  "snc", // Streets of New Capenna
-  "dmu", // Dominaria United
-  "bro", // The Brothers' War
-  "one", // Phyrexia: All Will Be One
-  "mom", // March of the Machine
-  "ltr", // The Lord of the Rings
-  "woe", // Wilds of Eldraine
-  "lci", // The Lost Caverns of Ixalan
+  "8ED", // Eight Edition
+  "MRD", "DST", "5DN", // Mirrodin / Darksteel / Fifth Dawn
+  "CHK", "BOK", "SOK", // Kamigawa block
+  "9ED", // Ninth Edition
+  "RAV", "GPT", "DIS", // Ravnica block
+  "CSP", // Coldsnap
+  "TSP", "PLC", "FUT", // Time Spiral block
+  "10E", // Tenth Edition
+  "LRW", "MOR", "SHM", "EVE", // Lorwyn + Shadowmoor mini-blocks
+  "ALA", "CON", "ARB", // Shards of Alara block
+  "M10", // Magic 2010
+  "ZEN", "WWK", "ROE", // Zendikar block
+  "M11", // Magic 2011
+  "SOM", "MBS", "NPH", // Scars of Mirrodin block
+  "M12", // Magic 2012
+  "ISD", "DKA", "AVR", // Innistrad block
+  "M13", // Magic 2013
+  "RTR", "GTC", "DGM", // Return to Ravnica block
+  "M14", // Magic 2014
+  "THS", "BNG", "JOU", // Theros block
+  "M15", // Magic 2015
+  "KTK", "FRF", "DTK", // Khans of Tarkir block
+  "ORI", // Magic Origins
+  "BFZ", "OGW", // Battle for Zendikar block
+  "SOI", "EMN", // Shadows Over Innistrad block
+  "KLD", "AER", // Kaladesh block
+  "AKH", "HOU", // Amonkhet block
+  "XLN", "RIX", // Ixalan block
+  "DOM", // Dominaria
+  "M19", // Core Set 2019
+  "GRN", "RNA" // Guilds of Ravnica / Ravnica Allegiance
 ]
-
+ 
 export default function MTGCardSearch() {
   const [cards, setCards] = useState<ScryfallCard[]>([])
   const [loading, setLoading] = useState(false)
@@ -221,7 +243,7 @@ export default function MTGCardSearch() {
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">MTG Card Search</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">PreFIRE Card Search</h1>
           <p className="text-muted-foreground">Search Magic: The Gathering cards from curated editions</p>
         </div>
       </header>

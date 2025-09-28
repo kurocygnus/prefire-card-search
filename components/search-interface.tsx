@@ -342,7 +342,7 @@ export function SearchInterface({ onSearch, loading, resultCount }: SearchInterf
       {/* Quick Actions */}
       <div className="space-y-4">
         {/* Popular Searches */}
-        <div>
+        {/* <div>
           <h3 className="text-sm font-medium text-foreground mb-2">Popular Searches</h3>
           <div className="flex flex-wrap gap-2">
             {POPULAR_SEARCHES.map((search) => (
@@ -357,7 +357,7 @@ export function SearchInterface({ onSearch, loading, resultCount }: SearchInterf
               </Button>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Search History and Saved Searches */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

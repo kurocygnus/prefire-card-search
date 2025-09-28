@@ -188,53 +188,6 @@ export function AdvancedFilters({ filters, onFiltersChange, onApply, onReset }: 
 
               <Separator />
 
-              {/* Format Legality */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Label>Format Legality</Label>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Show only cards legal in selected formats</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {FORMATS.map((format) => (
-                    <div key={format} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={format}
-                        checked={filters.formats.includes(format)}
-                        onCheckedChange={() => toggleFormat(format)}
-                      />
-                      <Label htmlFor={format} className="text-sm capitalize cursor-pointer">
-                        {format}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-                {filters.formats.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {filters.formats.map((format) => (
-                      <Badge key={format} variant="secondary" className="text-xs">
-                        {format}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-auto p-0 ml-1"
-                          onClick={() => toggleFormat(format)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <Separator />
 
               {/* Keywords */}
               <div className="space-y-3">
