@@ -89,23 +89,22 @@ export function SearchInterface({ onSearch, loading, resultCount }: SearchInterf
   }, [])
 
   const handleSearch = (e?: React.FormEvent) => {
-    e?.preventDefault()
-    if (!searchQuery.trim()) return
-
+    e?.preventDefault();
+    // Always trigger search, even if query is empty (reset)
     const searchData = {
       query: searchQuery,
       filters,
       advancedFilters,
       timestamp: Date.now(),
+    };
+    // Add to search history only if query is not empty
+    if (searchQuery.trim()) {
+      const newHistory = [searchData, ...searchHistory.filter((h) => h.query !== searchQuery)].slice(0, 10);
+      setSearchHistory(newHistory);
+      localStorage.setItem("mtg-search-history", JSON.stringify(newHistory));
     }
-
-    // Add to search history
-    const newHistory = [searchData, ...searchHistory.filter((h) => h.query !== searchQuery)].slice(0, 10)
-    setSearchHistory(newHistory)
-    localStorage.setItem("mtg-search-history", JSON.stringify(newHistory))
-
-    onSearch(searchQuery, filters, advancedFilters)
-  }
+    onSearch(searchQuery, filters, advancedFilters);
+  } 
 
   const handleQuickSearch = (query: string) => {
     setSearchQuery(query)
@@ -183,7 +182,7 @@ export function SearchInterface({ onSearch, loading, resultCount }: SearchInterf
               className="pl-10"
             />
           </div>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading} className="cursor-pointer" role="button" aria-label="Search">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
             Search
           </Button>
