@@ -164,6 +164,34 @@ const WATCH_LIST = [
     'Sword of the Meek',
 ];
 
+const BANNED_LIST = [
+    "Ancient Den",
+    "Great Furnace",
+    "Seat of the Synod",
+    "Vault of Whispers",
+    "Tree of Tales",
+    "Blazing Shoal",
+    "Chrome Mox",
+    "Cloudpost",
+    "Counterbalance",
+    "Dark Depths",
+    "Deathrite Shaman",
+    "Dig Through Time",
+    "Eye of Ugin",
+    "Gitaxian Probe",
+    "Golgari Grave-Troll",
+    "Hypergenesis",
+    "Krark-Clan Ironworks",
+    "Mental Misstep",
+    "Ponder",
+    "Rite of Flame",
+    "Second Sunrise",
+    "Skullclamp",
+    "Summer Bloom",
+    "Treasure Cruise",
+    "Umezawa's Jitte",
+]
+
 export default function MTGCardSearch() {
     const [cards, setCards] = useState<ScryfallCard[]>([]);
     const [loading, setLoading] = useState(false);
@@ -350,7 +378,7 @@ export default function MTGCardSearch() {
                 <SearchInterface onSearch={searchCards} loading={loading} resultCount={totalCards} />
                 {/* Results */}
                 <div className="mt-8">
-                    <CardGrid cards={cards} loading={loading} watchList={WATCH_LIST} />
+                    <CardGrid cards={cards} loading={loading} watchList={WATCH_LIST} bannedList={BANNED_LIST} />
                     {/* Pagination Bar */}
                     {totalPages > 1 && (
                         <div className="mt-8 flex justify-center">

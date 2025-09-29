@@ -46,12 +46,14 @@ interface CardDisplayProps {
   card: ScryfallCard
   onCardClick?: (card: ScryfallCard) => void
   watchList?: string[]
+  bannedList?: string[]
 }
 
 interface CardGridProps {
   cards: ScryfallCard[]
   loading?: boolean
   watchList?: string[]
+  bannedList?: string[]
 }
 
 const getLegalityColor = (legality: string) => {
@@ -64,9 +66,10 @@ const getLegalityColor = (legality: string) => {
     }
   };
 
-export function CardDisplay({ card, onCardClick, watchList }: CardDisplayProps) {
+export function CardDisplay({ card, onCardClick, watchList, bannedList }: CardDisplayProps) {
   // Watch List highlight logic
   const isWatchList = (watchList?: string[]) => watchList?.some(name => name.toLowerCase() === card.name.toLowerCase())
+  const isBanned = (bannedList?: string[]) => bannedList?.some(name => name.toLowerCase() === card.name.toLowerCase())
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
       case "common":
@@ -115,11 +118,24 @@ export function CardDisplay({ card, onCardClick, watchList }: CardDisplayProps) 
     if (hasFaces) setFaceIndex(faceIndex === 0 ? 1 : 0);
   };
 
+  // Border logic: banned > watchList > default
+  let borderClass = '';
+  if (isBanned(bannedList)) {
+    borderClass = 'border-4 border-red-600';
+  } else if (isWatchList(watchList)) {
+    borderClass = 'border-4 border-orange-500';
+  }
+
   return (
-    <Card className={`overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer group ${isWatchList(watchList) ? 'border-4 border-orange-500' : ''}`}> 
+    <Card className={`overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer group ${borderClass}`}> 
       <div className="relative" onClick={() => onCardClick?.(card)}>
-        {/* Watch List Tag */}
-        {isWatchList(watchList) && (
+        {/* Status Tags */}
+        {isBanned(bannedList) && (
+          <div className="absolute top-2 left-2 z-10">
+            <Badge className="bg-red-600 text-white text-xs px-2 py-1 rounded shadow">Banned</Badge>
+          </div>
+        )}
+        {isWatchList(watchList) && !isBanned(bannedList) && (
           <div className="absolute top-2 left-2 z-10">
             <Badge className="bg-orange-500 text-white text-xs px-2 py-1 rounded shadow">Watch List</Badge>
           </div>
@@ -421,7 +437,7 @@ export function CardModal({ card, open, onClose }: { card: ScryfallCard | null; 
   );
 }
 
-export function CardGrid({ cards, loading, watchList }: CardGridProps) {
+export function CardGrid({ cards, loading, watchList, bannedList }: CardGridProps) {
   const [selectedCard, setSelectedCard] = useState<ScryfallCard | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
 
@@ -461,7 +477,7 @@ export function CardGrid({ cards, loading, watchList }: CardGridProps) {
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {cards.map((card) => (
-          <CardDisplay key={card.id} card={card} onCardClick={handleCardClick} watchList={watchList} />
+          <CardDisplay key={card.id} card={card} onCardClick={handleCardClick} watchList={watchList} bannedList={bannedList} />
         ))}
       </div>
       <CardModal card={selectedCard} open={modalOpen} onClose={() => setModalOpen(false)} />
