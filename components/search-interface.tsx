@@ -14,9 +14,10 @@ import { AdvancedFilters } from "@/components/advanced-filters"
 interface SearchFilters {
   editions: string[]
   color: string
-  rarity: string
-  type: string
+  rarity: string[]
+  type: string[]
   cmc: string
+  typeAndLogic: boolean
 }
 
 interface AdvancedFilters {
@@ -69,10 +70,13 @@ export function SearchInterface({ onSearch, loading, resultCount }: SearchInterf
   const [filters, setFilters] = useState<SearchFilters>({
     editions: [],
     color: "all",
-    rarity: "all",
-    type: "all",
+    rarity: [],
+    type: [],
     cmc: "all",
+    typeAndLogic: false,
   })
+  const [showRarityPopover, setShowRarityPopover] = useState(false);
+  const [showTypePopover, setShowTypePopover] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>(defaultAdvancedFilters)
   const [searchHistory, setSearchHistory] = useState<SearchHistory[]>([])
   const [savedSearches, setSavedSearches] = useState<SearchHistory[]>([])
@@ -108,8 +112,8 @@ export function SearchInterface({ onSearch, loading, resultCount }: SearchInterf
 
   const handleQuickSearch = (query: string) => {
     setSearchQuery(query)
-    const searchData = { query, filters, advancedFilters, timestamp: Date.now() }
-    onSearch(query, filters, advancedFilters)
+  const searchData = { query, filters, advancedFilters, timestamp: Date.now() }
+  onSearch(query, filters, advancedFilters)
 
     // Add to history
     const newHistory = [searchData, ...searchHistory.filter((h) => h.query !== query)].slice(0, 10)
@@ -126,19 +130,18 @@ export function SearchInterface({ onSearch, loading, resultCount }: SearchInterf
       advancedFilters,
       timestamp: Date.now(),
     }
-
     const newSaved = [searchData, ...savedSearches.filter((s) => s.query !== searchQuery)].slice(0, 5)
     setSavedSearches(newSaved)
-    localStorage.setItem("mtg-saved-searches", JSON.stringify(newSaved))
   }
 
   const clearFilters = () => {
     setFilters({
       editions: [],
       color: "all",
-      rarity: "all",
-      type: "all",
+      rarity: [],
+      type: [],
       cmc: "all",
+      typeAndLogic: false,
     })
     setAdvancedFilters(defaultAdvancedFilters)
   }
@@ -162,8 +165,8 @@ export function SearchInterface({ onSearch, loading, resultCount }: SearchInterf
   const activeFiltersCount =
     (filters.editions.length > 0 ? 1 : 0) +
     (filters.color !== "all" ? 1 : 0) +
-    (filters.rarity !== "all" ? 1 : 0) +
-    (filters.type !== "all" ? 1 : 0) +
+    (filters.rarity.length > 0 ? 1 : 0) +
+    (filters.type.length > 0 ? 1 : 0) +
     (filters.cmc !== "all" ? 1 : 0) +
     (hasAdvancedFilters() ? 1 : 0)
 
@@ -290,34 +293,72 @@ export function SearchInterface({ onSearch, loading, resultCount }: SearchInterf
               </SelectContent>
             </Select>
 
-            <Select value={filters.rarity} onValueChange={(value) => setFilters({ ...filters, rarity: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Rarity" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Rarities</SelectItem>
-                <SelectItem value="common">Common</SelectItem>
-                <SelectItem value="uncommon">Uncommon</SelectItem>
-                <SelectItem value="rare">Rare</SelectItem>
-                <SelectItem value="mythic">Mythic</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* Multi-select for Rarity */}
+            <div className="relative">
+              <button type="button" className="w-full border rounded px-3 py-2 bg-background text-left" onClick={() => setShowRarityPopover((v) => !v)}>
+                {filters.rarity.length > 0 ? filters.rarity.join(", ") : "Select Rarity"}
+              </button>
+              {showRarityPopover && (
+                <div className="absolute z-10 bg-card border rounded shadow-lg mt-2 p-2 w-48">
+                  {["common", "uncommon", "rare", "mythic"].map((rarity) => (
+                    <label key={rarity} className="flex items-center gap-2 py-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={filters.rarity.includes(rarity)}
+                        onChange={(e) => {
+                          setFilters({
+                            ...filters,
+                            rarity: e.target.checked
+                              ? [...filters.rarity, rarity]
+                              : filters.rarity.filter((r) => r !== rarity),
+                          });
+                        }}
+                      />
+                      <span className="capitalize">{rarity}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
 
-            <Select value={filters.type} onValueChange={(value) => setFilters({ ...filters, type: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="creature">Creature</SelectItem>
-                <SelectItem value="instant">Instant</SelectItem>
-                <SelectItem value="sorcery">Sorcery</SelectItem>
-                <SelectItem value="enchantment">Enchantment</SelectItem>
-                <SelectItem value="artifact">Artifact</SelectItem>
-                <SelectItem value="planeswalker">Planeswalker</SelectItem>
-                <SelectItem value="land">Land</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* Multi-select for Type */}
+            <div className="relative">
+              <button type="button" className="w-full border rounded px-3 py-2 bg-background text-left" onClick={() => setShowTypePopover((v) => !v)}>
+                {filters.type.length > 0 ? filters.type.join(", ") : "Select Type"}
+              </button>
+              {showTypePopover && (
+                <div className="absolute z-10 bg-card border rounded shadow-lg mt-2 p-2 w-56">
+                  <div className="mb-2 flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={filters.typeAndLogic}
+                      onChange={e => setFilters({ ...filters, typeAndLogic: e.target.checked })}
+                      id="type-and-checkbox"
+                    />
+                    <label htmlFor="type-and-checkbox" className="text-xs cursor-pointer">
+                      Match all selected types (AND)
+                    </label>
+                  </div>
+                  {["creature", "instant", "sorcery", "enchantment", "artifact", "planeswalker", "land"].map((type) => (
+                    <label key={type} className="flex items-center gap-2 py-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={filters.type.includes(type)}
+                        onChange={(e) => {
+                          setFilters({
+                            ...filters,
+                            type: e.target.checked
+                              ? [...filters.type, type]
+                              : filters.type.filter((t) => t !== type),
+                          });
+                        }}
+                      />
+                      <span className="capitalize">{type}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <Select value={filters.cmc} onValueChange={(value) => setFilters({ ...filters, cmc: value })}>
               <SelectTrigger>

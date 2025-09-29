@@ -61,9 +61,10 @@ interface ScryfallResponse {
 interface SearchFilters {
     editions: string[];
     color: string;
-    rarity: string;
-    type: string;
+    rarity: string[];
+    type: string[];
     cmc: string;
+    typeAndLogic: boolean;
 }
 interface AdvancedFilters {
     priceRange: [number, number];
@@ -174,11 +175,12 @@ export default function MTGCardSearch() {
     // Store search query and filters in state to persist across page changes
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState<SearchFilters>({
-        editions: [],
-        color: 'all',
-        rarity: 'all',
-        type: 'all',
-        cmc: 'all',
+    editions: [],
+    color: 'all',
+    rarity: [],
+    type: [],
+    cmc: 'all',
+    typeAndLogic: false,
     });
     const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
         priceRange: [0, 100],
@@ -215,61 +217,71 @@ export default function MTGCardSearch() {
                 query = `(${allEditionsQuery}) game:paper`;
             } else {
                 query += ` (${allEditionsQuery})`;
-                if (newFilters.color !== 'all') {
-                    if (newFilters.color === 'm') {
-                        query += ` is:multicolored`;
-                    } else {
-                        query += ` color:${newFilters.color}`;
-                    }
-                }
-                if (newFilters.rarity !== 'all') {
-                    query += ` rarity:${newFilters.rarity}`;
-                }
-                if (newFilters.type !== 'all') {
-                    query += ` type:${newFilters.type}`;
-                }
-                if (newFilters.cmc !== 'all') {
-                    if (newFilters.cmc === '6') {
-                        query += ` cmc>=6`;
-                    } else {
-                        query += ` cmc:${newFilters.cmc}`;
-                    }
-                }
-                if (newAdvancedFilters.priceRange[0] > 0) {
-                    query += ` usd>=${newAdvancedFilters.priceRange[0]}`;
-                }
-                if (newAdvancedFilters.priceRange[1] < 100) {
-                    query += ` usd<=${newAdvancedFilters.priceRange[1]}`;
-                }
-                newAdvancedFilters.formats.forEach((format) => {
-                    query += ` legal:${format}`;
-                });
-                newAdvancedFilters.keywords.forEach((keyword) => {
-                    query += ` keyword:"${keyword}"`;
-                });
-                if (newAdvancedFilters.powerToughness.power.value) {
-                    query += ` power${newAdvancedFilters.powerToughness.power.operator}${newAdvancedFilters.powerToughness.power.value}`;
-                }
-                if (newAdvancedFilters.powerToughness.toughness.value) {
-                    query += ` toughness${newAdvancedFilters.powerToughness.toughness.operator}${newAdvancedFilters.powerToughness.toughness.value}`;
-                }
-                if (newAdvancedFilters.textContains) {
-                    query += ` oracle:"${newAdvancedFilters.textContains}"`;
-                }
-                if (newAdvancedFilters.artist) {
-                    query += ` artist:"${newAdvancedFilters.artist}"`;
-                }
-                if (newAdvancedFilters.flavorText) {
-                    query += ` flavor:"${newAdvancedFilters.flavorText}"`;
-                }
-                if (newAdvancedFilters.loyalty.value) {
-                    query += ` loyalty${newAdvancedFilters.loyalty.operator}${newAdvancedFilters.loyalty.value}`;
-                }
-                if (newAdvancedFilters.customQuery) {
-                    query += ` ${newAdvancedFilters.customQuery}`;
-                }
-                query += ` game:paper`;
             }
+            if (newFilters.color !== 'all') {
+                if (newFilters.color === 'm') {
+                    query += ` is:multicolored`;
+                } else {
+                    query += ` color:${newFilters.color}`;
+                }
+            }
+            if (Array.isArray(newFilters.rarity) && newFilters.rarity.length > 0) {
+                const rarityQuery = newFilters.rarity.map((r) => `rarity:${r}`).join(' OR ');
+                query += ` (${rarityQuery})`;
+            }
+            if (Array.isArray(newFilters.type) && newFilters.type.length > 0) {
+                if (newFilters.typeAndLogic) {
+                    // AND logic: all types must match
+                    const typeQuery = newFilters.type.map((t) => `type:${t}`).join(' ');
+                    query += ` ${typeQuery}`;
+                } else {
+                    // OR logic: any type matches
+                    const typeQuery = newFilters.type.map((t) => `type:${t}`).join(' OR ');
+                    query += ` (${typeQuery})`;
+                }
+            }
+            if (newFilters.cmc !== 'all') {
+                if (newFilters.cmc === '6') {
+                    query += ` cmc>=6`;
+                } else {
+                    query += ` cmc:${newFilters.cmc}`;
+                }
+            }
+            if (newAdvancedFilters.priceRange[0] > 0) {
+                query += ` usd>=${newAdvancedFilters.priceRange[0]}`;
+            }
+            if (newAdvancedFilters.priceRange[1] < 100) {
+                query += ` usd<=${newAdvancedFilters.priceRange[1]}`;
+            }
+            newAdvancedFilters.formats.forEach((format) => {
+                query += ` legal:${format}`;
+            });
+            newAdvancedFilters.keywords.forEach((keyword) => {
+                query += ` keyword:"${keyword}"`;
+            });
+            if (newAdvancedFilters.powerToughness.power.value) {
+                query += ` power${newAdvancedFilters.powerToughness.power.operator}${newAdvancedFilters.powerToughness.power.value}`;
+            }
+            if (newAdvancedFilters.powerToughness.toughness.value) {
+                query += ` toughness${newAdvancedFilters.powerToughness.toughness.operator}${newAdvancedFilters.powerToughness.toughness.value}`;
+            }
+            if (newAdvancedFilters.textContains) {
+                query += ` oracle:"${newAdvancedFilters.textContains}"`;
+            }
+            if (newAdvancedFilters.artist) {
+                query += ` artist:"${newAdvancedFilters.artist}"`;
+            }
+            if (newAdvancedFilters.flavorText) {
+                query += ` flavor:"${newAdvancedFilters.flavorText}"`;
+            }
+            if (newAdvancedFilters.loyalty.value) {
+                query += ` loyalty${newAdvancedFilters.loyalty.operator}${newAdvancedFilters.loyalty.value}`;
+            }
+            if (newAdvancedFilters.customQuery) {
+                query += ` ${newAdvancedFilters.customQuery}`;
+            }
+            query += ` game:paper`;
+            
             // Calculate which Scryfall API page to fetch
             const virtualPage = page;
             const cardsPerApiPage = 175;
@@ -307,7 +319,7 @@ export default function MTGCardSearch() {
         // Use searchCards to load initial cards with virtual pagination
         searchCards(
             '',
-            { editions: [], color: 'all', rarity: 'all', type: 'all', cmc: 'all' },
+            { editions: [], color: 'all', rarity: [], type: [], cmc: 'all', typeAndLogic: false },
             {
                 priceRange: [0, 100],
                 formats: [],
